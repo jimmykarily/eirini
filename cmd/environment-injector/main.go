@@ -14,9 +14,6 @@ import (
 	"code.cloudfoundry.org/tlsconfig"
 	"github.com/jessevdk/go-flags"
 	yaml "gopkg.in/yaml.v2"
-
-	// For gcp and oidc authentication
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
 )
 
 type options struct {
@@ -50,11 +47,6 @@ func serveTLS(logger lager.Logger, cfg *eirini.EnvInjectorConfig, handler http.H
 	}
 	cmdcommons.ExitIfError(err)
 
-	server = &http.Server{
-		Addr:      fmt.Sprintf("0.0.0.0:%d", cfg.TLSPort),
-		Handler:   handler,
-		TLSConfig: tlsConfig,
-	}
 	http.HandleFunc("/pods", handler)
 	server.ListenAndServeTLS(cfg.ServerCertPath, cfg.ServerKeyPath)
 }

@@ -166,8 +166,8 @@ type StagerConfig struct {
 	ExecutorImage   string
 }
 
-type EnvInjectorConfig struct {
-	ServerKeyPath  string `yaml:"server_cert_path"`
+type EnvironmentInjectorConfig struct {
+	ServerKeyPath  string `yaml:"server_key_path"`
 	ServerCertPath string `yaml:"server_cert_path"`
 	TLSPort        int    `yaml:"tls_port"`
 }

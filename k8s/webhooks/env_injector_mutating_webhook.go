@@ -23,22 +23,22 @@ const (
 		   "op":"add",
 		   "path":"/spec/containers[0]/env",
 		   "name":"CF_INSTANCE_INDEX",
-		   "value": ""
+		   "value": %d
 	  }
 	]`
 )
 
-type EnvInjectorMutatingWebhook struct {
+type EnvironmentInjectorMutatingWebhook struct {
 	logger lager.Logger
 }
 
-func NewEnvInjectorWebhook(logger lager.Logger) *EnvInjectorMutatingWebhook {
-	return &EnvInjectorMutatingWebhook{
+func NewEnvironmentInjectorWebhookb(logger lager.Logger) *EnvironmentInjectorMutatingWebhook {
+	return &EnvironmentInjectorMutatingWebhook{
 		logger: logger,
 	}
 }
 
-func (h *EnvInjectorMutatingWebhook) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *EnvironmentInjectorMutatingWebhook) Handle(w http.ResponseWriter, r *http.Request) {
 	var body []byte
 	if r.Body != nil {
 		if data, err := ioutil.ReadAll(r.Body); err == nil {
@@ -86,7 +86,7 @@ func (h *EnvInjectorMutatingWebhook) Handle(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (h *EnvInjectorMutatingWebhook) mutatePod(ar admissionv1.AdmissionReview) *admissionv1.AdmissionResponse {
+func (h *EnvironmentInjectorMutatingWebhook) mutatePod(ar admissionv1.AdmissionReview) *admissionv1.AdmissionResponse {
 	raw := ar.Request.Object.Raw
 	pod := corev1.Pod{}
 	scheme := runtime.NewScheme()
@@ -126,7 +126,7 @@ func parseInstanceIndex(podName string) (int, error) {
 	nameSegments := strings.Split(podName, "-")
 	numSegments := len(nameSegments)
 	if numSegments == 0 {
-		return -1, fmt.Errorf("invalid pod name: %q. Pod names should contain dashes.", podName)
+		return -1, fmt.Errorf("invalid pod name: %q. Pod names should contain dashes", podName)
 	}
 	instanceIndex, err := strconv.Atoi(nameSegments[numSegments-1])
 	if err != nil {

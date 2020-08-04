@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"fmt"
@@ -31,12 +31,12 @@ func main() {
 	logger := lager.NewLogger("env-injector")
 	logger.RegisterSink(lager.NewPrettySink(os.Stdout, lager.DEBUG))
 
-	webhook := webhooks.NewEnvInjectorWebhook(logger)
+	webhook := webhooks.NewEnvironmentInjectorWebhookb(logger)
 
 	serveTLS(logger, cfg, webhook.Handle)
 }
 
-func serveTLS(logger lager.Logger, cfg *eirini.EnvInjectorConfig, handler http.HandlerFunc) {
+func serveTLS(logger lager.Logger, cfg *eirini.EnvironmentInjectorConfig, handler http.HandlerFunc) {
 	tlsConfig, err := tlsconfig.Build(
 		tlsconfig.WithInternalServiceDefaults(),
 	).Server()
@@ -47,17 +47,17 @@ func serveTLS(logger lager.Logger, cfg *eirini.EnvInjectorConfig, handler http.H
 	}
 	cmdcommons.ExitIfError(err)
 
-	http.HandleFunc("/pods", handler)
+	http.HandleFunc("/", handler)
 	server.ListenAndServeTLS(cfg.ServerCertPath, cfg.ServerKeyPath)
 }
 
-func readConfig(path string) (*eirini.EnvInjectorConfig, error) {
+func readConfig(path string) (*eirini.EnvironmentInjectorConfig, error) {
 	fileBytes, err := ioutil.ReadFile(filepath.Clean(path))
 	if err != nil {
 		return nil, err
 	}
 
-	var conf eirini.EnvInjectorConfig
+	var conf eirini.EnvironmentInjectorConfig
 	err = yaml.Unmarshal(fileBytes, &conf)
 	if err != nil {
 		return nil, err

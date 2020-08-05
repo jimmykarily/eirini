@@ -13,6 +13,7 @@ import (
 	"code.cloudfoundry.org/lager"
 	"code.cloudfoundry.org/tlsconfig"
 	"github.com/jessevdk/go-flags"
+	"github.com/julienschmidt/httprouter"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -31,24 +32,27 @@ func main() {
 	logger := lager.NewLogger("env-injector")
 	logger.RegisterSink(lager.NewPrettySink(os.Stdout, lager.DEBUG))
 
-	webhook := webhooks.NewEnvironmentInjectorWebhookb(logger)
+	webhook := webhooks.NewEnvironmentInjectorWebhook(logger)
 
 	serveTLS(logger, cfg, webhook.Handle)
 }
 
-func serveTLS(logger lager.Logger, cfg *eirini.EnvironmentInjectorConfig, handler http.HandlerFunc) {
+func serveTLS(logger lager.Logger, cfg *eirini.EnvironmentInjectorConfig, handler httprouter.Handle) {
 	tlsConfig, err := tlsconfig.Build(
 		tlsconfig.WithInternalServiceDefaults(),
 	).Server()
 
+	httpHandler := httprouter.New()
+	httpHandler.POST("/inject-instance-index", handler)
+
 	server := &http.Server{
 		Addr:      fmt.Sprintf("0.0.0.0:%d", cfg.TLSPort),
 		TLSConfig: tlsConfig,
+		Handler:   httpHandler,
 	}
 	cmdcommons.ExitIfError(err)
 
-	http.HandleFunc("/", handler)
-	server.ListenAndServeTLS(cfg.ServerCertPath, cfg.ServerKeyPath)
+	logger.Fatal("server-crashed", server.ListenAndServeTLS(cfg.ServerCertPath, cfg.ServerKeyPath))
 }
 
 func readConfig(path string) (*eirini.EnvironmentInjectorConfig, error) {

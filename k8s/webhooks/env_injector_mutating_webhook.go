@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"code.cloudfoundry.org/lager"
+	"github.com/julienschmidt/httprouter"
 	"github.com/pkg/errors"
 	admissionv1 "k8s.io/api/admission/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -18,6 +19,7 @@ import (
 )
 
 const (
+	// TODO find the inex of the opi container form the raw pod input
 	podPatchTemplate string = `[
       {
 		   "op":"add",
@@ -32,13 +34,13 @@ type EnvironmentInjectorMutatingWebhook struct {
 	logger lager.Logger
 }
 
-func NewEnvironmentInjectorWebhookb(logger lager.Logger) *EnvironmentInjectorMutatingWebhook {
+func NewEnvironmentInjectorWebhook(logger lager.Logger) *EnvironmentInjectorMutatingWebhook {
 	return &EnvironmentInjectorMutatingWebhook{
 		logger: logger,
 	}
 }
 
-func (h *EnvironmentInjectorMutatingWebhook) Handle(w http.ResponseWriter, r *http.Request) {
+func (h *EnvironmentInjectorMutatingWebhook) Handle(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var body []byte
 	if r.Body != nil {
 		if data, err := ioutil.ReadAll(r.Body); err == nil {

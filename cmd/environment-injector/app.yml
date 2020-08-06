@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: fakeapp-2
+  namespace: eirini-workloads
+  labels:
+    cloudfoundry.org/source_type: APP
+spec:
+  containers:
+  - image: busybox:1.28.4
+    command:
+      - sleep
+      - "3600"
+    name: opi
+    env:
+    - name: FAKE_APP
+      value: "fake content"
+  restartPolicy: Always

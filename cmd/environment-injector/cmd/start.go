@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	eirinix "github.com/SUSE/eirinix"
-	injector "github.com/cloudfoundry-incubator/eirini-env-injector/cmd/envinjector"
+	injector "github.com/cloudfoundry-incubator/eirini-env-injector/injector"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
